@@ -1,4 +1,5 @@
 const SITE_PASSWORD = "#Fils*#12@@";
+const HARDCODED_HASH = "e138554f419cb4ea627a7a66355ae4d45a93ffdaf6b4881c892fe8937a33aaa0";
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -10,12 +11,12 @@ async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(password: string): Promise<boolean> {
   const hash = await hashPassword(password);
-  const storedHash = process.env.NEXT_PUBLIC_SITE_PASSWORD_HASH;
+  const storedHash = process.env.NEXT_PUBLIC_SITE_PASSWORD_HASH || HARDCODED_HASH;
   return hash === storedHash;
 }
 
 function setAuthCookie(token: string): void {
-  document.cookie = `bia_co_session=${token}; path=/; max-age=86400; SameSite=Lax`;
+  document.cookie = `bia_co_session=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
 }
 
 function clearAuthCookie(): void {

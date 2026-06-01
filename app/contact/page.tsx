@@ -63,13 +63,23 @@ export default function ContactPage() {
         body: data.body,
         fingerprint,
       });
-      if (insertError) throw insertError;
+      if (insertError) {
+        if (insertError.message?.includes("Failed to fetch") || insertError.code === "PGRST000") {
+          throw new Error("Database connection unavailable. Please try again later.");
+        }
+        throw insertError;
+      }
       setSubmitted(true);
       reset();
       setTimeout(() => setSubmitted(false), 5000);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      setError("Failed to send message. Please try again.");
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("Database connection") || msg.includes("fetch")) {
+        setError("Cannot connect to database. Check your Supabase configuration.");
+      } else {
+        setError("Failed to send message. Please try again.");
+      }
     }
   };
 

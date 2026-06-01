@@ -2,23 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-
-const rwandaImages = [
-  "https://images.unsplash.com/photo-1566576912321-58e610b5b09b?w=1920&q=80",
-  "https://images.unsplash.com/photo-1592500090445-053f151bf2d9?w=1920&q=80",
-  "https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1920&q=80",
-  "https://images.unsplash.com/photo-1591117207239-788bf8de6c3b?w=1920&q=80",
-  "https://images.unsplash.com/photo-1593272737382-5f0e2c5af545?w=1920&q=80",
-  "https://images.unsplash.com/photo-1580651315530-69c8e0026377?w=1920&q=80",
-];
+import { rwandaImages as defaultImages } from "@/lib/rwandaImages";
 
 interface RwandaBackgroundProps {
   images?: string[];
 }
 
 export function RwandaBackground({ images }: RwandaBackgroundProps) {
-  const bgImages = images && images.length > 0 ? images : rwandaImages;
+  const bgImages = images && images.length > 0 ? images : defaultImages;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const showDots = bgImages.length <= 20;
 
   useEffect(() => {
     if (bgImages.length <= 1) return;
@@ -48,18 +41,24 @@ export function RwandaBackground({ images }: RwandaBackgroundProps) {
         </div>
       ))}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {bgImages.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrentIndex(idx)}
-            className={`transition-all duration-300 rounded-full ${
-              idx === currentIndex
-                ? "bg-gradient-to-r from-amber-400 to-amber-600 w-8 h-2"
-                : "bg-white/30 hover:bg-white/50 w-2 h-2"
-            }`}
-          />
-        ))}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3">
+        {showDots ? (
+          bgImages.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`transition-all duration-300 rounded-full ${
+                idx === currentIndex
+                  ? "bg-gradient-to-r from-amber-400 to-amber-600 w-8 h-2"
+                  : "bg-white/30 hover:bg-white/50 w-2 h-2"
+              }`}
+            />
+          ))
+        ) : (
+          <span className="text-white/60 text-sm font-mono tracking-wider">
+            {String(currentIndex + 1).padStart(2, "0")} / {String(bgImages.length).padStart(2, "0")}
+          </span>
+        )}
       </div>
     </div>
   );
