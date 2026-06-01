@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ParticlesBg } from "@/components/ui/ParticlesBg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { AIAssistant } from "@/components/ai/AIAssistant";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -40,6 +41,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           <Footer />
+          <AIAssistant />
         </>
       )}
     </>
