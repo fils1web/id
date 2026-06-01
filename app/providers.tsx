@@ -25,7 +25,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const isDashboard = pathname.startsWith("/dashboard");
   const isLogin = pathname.startsWith("/login");
 
-  const sidebarMargin = isDashboard ? "md:ml-[72px]" : "md:ml-[72px]";
+  const sidebarMargin = "md:ml-[72px]";
+  const mobileBottomPad = "pb-20 md:pb-0";
 
   return (
     <>
@@ -37,7 +38,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <ParticlesBg />
           <Navbar />
           <Sidebar />
-          <main className={`min-h-screen ${sidebarMargin}`}>
+          <main className={`min-h-screen ${sidebarMargin} ${mobileBottomPad}`}>
             {children}
           </main>
           <Footer />

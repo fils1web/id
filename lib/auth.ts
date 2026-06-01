@@ -1,4 +1,4 @@
-const SITE_PASSWORD = "#B4r#12@@";
+const SITE_PASSWORD = "#Fils*#12@@";
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();

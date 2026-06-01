@@ -29,6 +29,7 @@ export interface ProjectFile {
   file_type: string | null;
   file_size: number | null;
   download_count: number;
+  storage_path: string | null;
   created_at: string;
 }
 

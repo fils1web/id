@@ -39,6 +39,7 @@ CREATE TABLE files (
   file_type text,
   file_size bigint,
   download_count int DEFAULT 0,
+  storage_path text,
   created_at timestamptz DEFAULT now()
 );
 

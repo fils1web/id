@@ -24,10 +24,23 @@ export function FileUploader({ onSuccess }: FileUploaderProps) {
     }
   }, []);
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxFiles: 1,
+    noClick: false,
+    noKeyboard: false,
   });
+
+  const getFileType = (f: File): string => {
+    if (f.type.startsWith("image/")) return "image";
+    if (f.type.startsWith("video/")) return "video";
+    if (f.type.startsWith("audio/")) return "audio";
+    if (f.type === "application/pdf") return "pdf";
+    if (f.type.includes("zip") || f.type.includes("rar") || f.type.includes("tar") || f.type.includes("7z") || f.name.endsWith(".zip") || f.name.endsWith(".rar")) return "zip";
+    if (f.type.includes("spreadsheet") || f.type.includes("excel") || f.name.endsWith(".xlsx") || f.name.endsWith(".xls") || f.name.endsWith(".csv")) return "spreadsheet";
+    if (f.type.includes("document") || f.type.includes("word") || f.name.endsWith(".doc") || f.name.endsWith(".docx")) return "document";
+    return "other";
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,20 +49,25 @@ export function FileUploader({ onSuccess }: FileUploaderProps) {
     setError("");
 
     try {
-      const fileName = `${Date.now()}_${file.name.replace(/\s/g, "_")}`;
+      const ext = file.name.substring(file.name.lastIndexOf("."));
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const fileName = `${Date.now()}_${sanitizedName}`;
+      const filePath = `files/${fileName}`;
+
       const { error: uploadError } = await supabase.storage
         .from("uploads")
-        .upload(`files/${fileName}`, file);
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type || undefined,
+        });
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage
         .from("uploads")
-        .getPublicUrl(`files/${fileName}`);
+        .getPublicUrl(filePath);
 
-      const fileType = file.type.split("/")[0] === "image" ? "image" :
-        file.type === "application/pdf" ? "pdf" :
-        file.type.startsWith("video") ? "video" :
-        file.name.endsWith(".zip") ? "zip" : "other";
+      const fileType = getFileType(file);
 
       const { error: dbError } = await supabase.from("files").insert({
         name,
@@ -57,6 +75,7 @@ export function FileUploader({ onSuccess }: FileUploaderProps) {
         file_url: urlData.publicUrl,
         file_type: fileType,
         file_size: file.size,
+        storage_path: filePath,
       });
       if (dbError) throw dbError;
 
@@ -78,11 +97,27 @@ export function FileUploader({ onSuccess }: FileUploaderProps) {
         <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">{error}</div>
       )}
 
-      <div {...getRootProps()} className="border-2 border-dashed border-gold/20 rounded-xl p-8 text-center cursor-pointer hover:border-gold/50 transition-colors">
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
+          isDragActive
+            ? "border-gold bg-gold/5 scale-[1.02]"
+            : "border-gold/20 hover:border-gold/50 hover:bg-white/[0.02]"
+        }`}
+      >
         <input {...getInputProps()} />
         <Upload className="w-10 h-10 mx-auto text-gray-400 mb-3" />
-        <p className="text-sm text-gray-400 font-body">Drop a file here or click to browse</p>
-        {file && <p className="text-gold text-sm mt-2">{file.name} ({(file.size / 1024).toFixed(1)} KB)</p>}
+        <p className="text-sm text-gray-400 font-body">
+          {isDragActive ? "Drop file here..." : "Drop any file here or click to browse"}
+        </p>
+        <p className="text-[10px] text-gray-500 mt-1 font-body">Any file type accepted</p>
+        {file && (
+          <div className="mt-3 flex items-center justify-center gap-2">
+            <FileIcon className="w-4 h-4 text-gold" />
+            <p className="text-gold text-sm font-body">{file.name}</p>
+            <span className="text-gray-500 text-xs">({(file.size / 1024).toFixed(1)} KB)</span>
+          </div>
+        )}
       </div>
 
       <div>
@@ -108,7 +143,7 @@ export function FileUploader({ onSuccess }: FileUploaderProps) {
       </div>
 
       <GoldButton type="submit" loading={uploading}>
-        Upload File
+        <Upload className="w-4 h-4 mr-1.5 inline" /> Upload File
       </GoldButton>
     </form>
   );

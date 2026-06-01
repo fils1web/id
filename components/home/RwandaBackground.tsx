@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-const fallbackImages = [
-  "/rwanda/placeholder-1.jpg",
-  "/rwanda/placeholder-2.jpg",
-  "/rwanda/placeholder-3.jpg",
-  "/rwanda/placeholder-4.jpg",
-  "/rwanda/placeholder-5.jpg",
+const rwandaImages = [
+  "https://images.unsplash.com/photo-1566576912321-58e610b5b09b?w=1920&q=80",
+  "https://images.unsplash.com/photo-1592500090445-053f151bf2d9?w=1920&q=80",
+  "https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1920&q=80",
+  "https://images.unsplash.com/photo-1591117207239-788bf8de6c3b?w=1920&q=80",
+  "https://images.unsplash.com/photo-1593272737382-5f0e2c5af545?w=1920&q=80",
+  "https://images.unsplash.com/photo-1580651315530-69c8e0026377?w=1920&q=80",
 ];
 
 interface RwandaBackgroundProps {
@@ -16,7 +17,7 @@ interface RwandaBackgroundProps {
 }
 
 export function RwandaBackground({ images }: RwandaBackgroundProps) {
-  const bgImages = images && images.length > 0 ? images : fallbackImages;
+  const bgImages = images && images.length > 0 ? images : rwandaImages;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -42,17 +43,20 @@ export function RwandaBackground({ images }: RwandaBackgroundProps) {
             className="object-cover"
             priority={idx === 0}
             sizes="100vw"
+            unoptimized
           />
         </div>
       ))}
-      <div className="absolute inset-0 bg-black/55" />
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {bgImages.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              idx === currentIndex ? "bg-gold w-6" : "bg-white/30 hover:bg-white/50"
+            className={`transition-all duration-300 rounded-full ${
+              idx === currentIndex
+                ? "bg-gradient-to-r from-amber-400 to-amber-600 w-8 h-2"
+                : "bg-white/30 hover:bg-white/50 w-2 h-2"
             }`}
           />
         ))}
