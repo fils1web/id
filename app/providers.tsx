@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
@@ -10,30 +10,52 @@ import { ParticlesBg } from "@/components/ui/ParticlesBg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { AIAssistant } from "@/components/ai/AIAssistant";
+import { NavLoadingProvider, useNavLoading } from "@/components/ui/NavLoadingContext";
+import { NavigationProgress } from "@/components/ui/NavigationProgress";
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true);
+function ProvidersInner({ children }: { children: React.ReactNode }) {
+  const [initialLoading, setInitialLoading] = useState(true);
   const pathname = usePathname();
+  const prevPath = useRef(pathname);
   const checkAuth = useAuthStore((s) => s.checkAuth);
+  const { stopLoading, startLoading } = useNavLoading();
 
   useEffect(() => {
     checkAuth();
-    const timer = setTimeout(() => setLoading(false), 1500);
+    const timer = setTimeout(() => setInitialLoading(false), 1500);
     return () => clearTimeout(timer);
   }, [checkAuth]);
 
-  const isDashboard = pathname.startsWith("/dashboard");
-  const isLogin = pathname.startsWith("/login");
+  useEffect(() => {
+    if (prevPath.current !== pathname) {
+      prevPath.current = pathname;
+      stopLoading();
+    }
+  }, [pathname, stopLoading]);
+
+  useEffect(() => {
+    function handleGlobalClick(e: MouseEvent) {
+      const target = (e.target as HTMLElement).closest("a");
+      if (!target) return;
+      const href = target.getAttribute("href");
+      if (!href || href.startsWith("#") || href.startsWith("http") || href.startsWith("mailto") || href.startsWith("tel")) return;
+      if (target.target === "_blank") return;
+      startLoading();
+    }
+    document.addEventListener("click", handleGlobalClick);
+    return () => document.removeEventListener("click", handleGlobalClick);
+  }, [startLoading]);
 
   const sidebarMargin = "md:ml-[72px]";
   const mobileBottomPad = "pb-20 md:pb-0";
 
   return (
     <>
+      <NavigationProgress visible={!initialLoading} />
       <AnimatePresence mode="wait">
-        {loading && <LoadingScreen />}
+        {initialLoading && <LoadingScreen />}
       </AnimatePresence>
-      {!loading && (
+      {!initialLoading && (
         <>
           <ParticlesBg />
           <Navbar />
@@ -46,5 +68,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
         </>
       )}
     </>
+  );
+}
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <NavLoadingProvider>
+      <ProvidersInner>{children}</ProvidersInner>
+    </NavLoadingProvider>
   );
 }
