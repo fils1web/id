@@ -14,6 +14,14 @@ export async function verifyPassword(password: string): Promise<boolean> {
   return hash === storedHash;
 }
 
+function setAuthCookie(token: string): void {
+  document.cookie = `bia_co_session=${token}; path=/; max-age=86400; SameSite=Lax`;
+}
+
+function clearAuthCookie(): void {
+  document.cookie = "bia_co_session=; path=/; max-age=0";
+}
+
 export function getSessionToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("bia_co_session");
@@ -21,10 +29,12 @@ export function getSessionToken(): string | null {
 
 export function setSessionToken(token: string): void {
   localStorage.setItem("bia_co_session", token);
+  setAuthCookie(token);
 }
 
 export function clearSessionToken(): void {
   localStorage.removeItem("bia_co_session");
+  clearAuthCookie();
 }
 
 export async function login(password: string): Promise<boolean> {
