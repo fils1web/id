@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut, UserCog } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { cn } from "@/lib/utils";
 
@@ -51,23 +51,31 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              {isAuthenticated && (
+              {isAuthenticated ? (
                 <>
                   <Link
                     href="/dashboard"
-                    className="px-4 py-2 text-sm font-body text-cyan-400 hover:text-cyan-300 transition-colors"
+                    className="px-4 py-2 text-xs font-body rounded-full bg-gradient-to-r from-amber-500/20 to-purple-600/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all"
                   >
-                    <LayoutDashboard className="w-4 h-4 inline mr-1" />
+                    <LayoutDashboard className="w-3.5 h-3.5 inline mr-1" />
                     Dashboard
                   </Link>
                   <button
                     onClick={logout}
-                    className="px-4 py-2 text-sm font-body text-red-400 hover:text-red-300 transition-colors"
+                    className="px-3 py-2 text-xs font-body text-red-400 hover:text-red-300 transition-colors"
                   >
-                    <LogOut className="w-4 h-4 inline mr-1" />
+                    <LogOut className="w-3.5 h-3.5 inline mr-1" />
                     Logout
                   </button>
                 </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="px-4 py-2 text-xs font-body rounded-full bg-gradient-to-r from-amber-500 to-purple-600 text-white shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300"
+                >
+                  <UserCog className="w-3.5 h-3.5 inline mr-1" />
+                  Founder
+                </Link>
               )}
             </div>
 
@@ -105,12 +113,12 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              {isAuthenticated && (
+              {isAuthenticated ? (
                 <>
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileOpen(false)}
-                    className="block px-4 py-3 font-body text-cyan-400 rounded-xl hover:bg-cyan-500/10"
+                    className="block px-4 py-3 font-body text-amber-400 rounded-xl bg-amber-500/10 border border-amber-500/20"
                   >
                     <LayoutDashboard className="w-4 h-4 inline mr-2" />Dashboard
                   </Link>
@@ -121,6 +129,14 @@ export function Navbar() {
                     <LogOut className="w-4 h-4 inline mr-2" />Logout
                   </button>
                 </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-4 py-3 font-body text-center rounded-xl bg-gradient-to-r from-amber-500 to-purple-600 text-white font-semibold shadow-lg"
+                >
+                  <UserCog className="w-4 h-4 inline mr-2" />Founder Sign In
+                </Link>
               )}
             </div>
           </motion.div>
