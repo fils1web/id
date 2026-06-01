@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { GoldButton } from "@/components/ui/GoldButton";
@@ -21,7 +21,7 @@ export default function DashboardMessagesPage() {
 
   const load = async () => {
     try {
-      const { data } = await supabaseAdmin
+      const { data } = await getSupabaseAdmin()
         .from("messages")
         .select("*, message_replies(*)")
         .order("created_at", { ascending: false });

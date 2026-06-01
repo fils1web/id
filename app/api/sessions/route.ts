@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const online = is_online !== undefined ? is_online : true;
     const now = new Date().toISOString();
 
-    const { data: existing, error: selectError } = await supabaseAdmin
+    const { data: existing, error: selectError } = await getSupabaseAdmin()
       .from("user_sessions")
       .select("id")
       .eq("fingerprint", fingerprint)
@@ -25,13 +25,13 @@ export async function POST(request: Request) {
     if (existing) {
       const updates: Record<string, unknown> = { last_seen: now, is_online: online };
       if (name) updates.name = name;
-      const { error: updateError } = await supabaseAdmin
+      const { error: updateError } = await getSupabaseAdmin()
         .from("user_sessions")
         .update(updates as never)
         .eq("fingerprint", fingerprint);
       if (updateError) throw updateError;
     } else {
-      const { error: insertError } = await supabaseAdmin
+      const { error: insertError } = await getSupabaseAdmin()
         .from("user_sessions")
         .insert({ fingerprint, name: name || null, last_seen: now, is_online: online } as never);
       if (insertError) throw insertError;

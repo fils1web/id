@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function POST(request: Request) {
   try {
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "message_id and body are required" }, { status: 400 });
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from("message_replies")
       .insert({
         message_id,
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     if (error) throw error;
 
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("messages")
       .update({ is_read: true } as never)
       .eq("id", message_id);

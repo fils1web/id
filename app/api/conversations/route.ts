@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function GET(request: Request) {
   try {
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "fingerprint is required" }, { status: 400 });
     }
 
-    const { data: messagesData, error } = await supabaseAdmin
+    const { data: messagesData, error } = await getSupabaseAdmin()
       .from("messages")
       .select("*, message_replies(*)")
       .eq("fingerprint", fingerprint)
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
     if (error) throw error;
 
-    const { data: sessionData } = await supabaseAdmin
+    const { data: sessionData } = await getSupabaseAdmin()
       .from("user_sessions")
       .select("*")
       .eq("fingerprint", fingerprint)
